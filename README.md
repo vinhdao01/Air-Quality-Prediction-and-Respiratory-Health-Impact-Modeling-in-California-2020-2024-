@@ -121,7 +121,7 @@ Air-Quality-Project/
 ### 1. Clone the repository
 
 ```
-git clone <your-repo-link>
+git clone https://github.com/alligmckernan/Air-Quality-Prediction-and-Respiratory-Health-Impact-Modeling-in-California-2020-2024-.git
 cd Air-Quality-Project
 ```
 
