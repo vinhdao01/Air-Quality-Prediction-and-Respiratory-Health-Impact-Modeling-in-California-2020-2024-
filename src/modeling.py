@@ -1,88 +1,55 @@
-# modeling.py
-
-# PURPOSE:
-# Train models for AQI forecasting and respiratory health prediction
-
-from statsmodels.tsa.arima.model import ARIMA
-from statsmodels.tsa.statespace.sarimax import SARIMAX
-
-from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
-from sklearn.linear_model import LinearRegression
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 
 
-# -----------------------------
-# MODEL 1: AQI FORECASTING
-# -----------------------------
-
-def train_arima(series, order=(1, 1, 1)):
+# =========================
+# Train/Test Split
+# =========================
+def split_data(df, target_column, test_size=0.2):
     """
-    Train ARIMA model for AQI forecasting
+    Split dataset into training and testing sets
     """
-    model = ARIMA(series, order=order)
-    return model.fit()
+    X = df.drop(columns=[target_column])
+    y = df[target_column]
+
+    return train_test_split(X, y, test_size=test_size, random_state=42)
 
 
-def train_sarima(series, order=(1, 1, 1), seasonal_order=(1, 1, 1, 52)):
+# =========================
+# Evaluate Model
+# =========================
+def evaluate_model(y_true, y_pred):
     """
-    Train SARIMA model for seasonal AQI forecasting
+    Calculate MAE, RMSE, and R2
     """
-    model = SARIMAX(series, order=order, seasonal_order=seasonal_order)
-    return model.fit()
+    mae = mean_absolute_error(y_true, y_pred)
+    rmse = mean_squared_error(y_true, y_pred) ** 0.5
+    r2 = r2_score(y_true, y_pred)
+
+    return {
+        "MAE": mae,
+        "RMSE": rmse,
+        "R2": r2
+    }
 
 
-def train_rf_forecast(X_train, y_train):
+# =========================
+# Save Metrics
+# =========================
+def save_metrics(metrics_dict, filename):
     """
-    Train Random Forest for AQI prediction using time features
+    Save model metrics to CSV
     """
-    model = RandomForestRegressor(n_estimators=100, random_state=42)
-    model.fit(X_train, y_train)
-    return model
+    df = pd.DataFrame(metrics_dict)
+    df.to_csv(filename, index=False)
 
 
-# -----------------------------
-# MODEL 2: HEALTH IMPACT
-# -----------------------------
-
-def train_linear_regression(X_train, y_train):
+# =========================
+# Save Predictions
+# =========================
+def save_predictions(df, filename):
     """
-    Train Linear Regression model for health outcomes
+    Save predictions DataFrame
     """
-    model = LinearRegression()
-    model.fit(X_train, y_train)
-    return model
-
-
-def train_random_forest(X_train, y_train):
-    """
-    Train Random Forest for health outcome prediction
-    """
-    model = RandomForestRegressor(n_estimators=100, random_state=42)
-    model.fit(X_train, y_train)
-    return model
-
-
-def train_gradient_boosting(X_train, y_train):
-    """
-    Train Gradient Boosting model for health outcomes
-    """
-    model = GradientBoostingRegressor(n_estimators=100, random_state=42)
-    model.fit(X_train, y_train)
-    return model
-
-
-# -----------------------------
-# PREDICTION FUNCTIONS
-# -----------------------------
-
-def forecast(model, steps=10):
-    """
-    Forecast future values for time-series models
-    """
-    return model.forecast(steps=steps)
-
-
-def predict(model, X_test):
-    """
-    Generate predictions for regression models
-    """
-    return model.predict(X_test)
+    df.to_csv(filename, index=False)
