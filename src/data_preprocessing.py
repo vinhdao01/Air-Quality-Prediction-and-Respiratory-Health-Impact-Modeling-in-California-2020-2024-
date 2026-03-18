@@ -1,58 +1,68 @@
-# data_preprocessing.py
-
-# PURPOSE:
-# Load, inspect, and clean datasets for analysis and modeling
-
 import pandas as pd
 
-
-def load_data(filepath):
+# =========================
+# Load Data
+# =========================
+def load_data(file_path):
     """
-    Load a CSV file into a DataFrame
+    Load CSV file into pandas DataFrame
     """
-    return pd.read_csv(filepath)
+    return pd.read_csv(file_path)
 
 
-def inspect_data(df, name="dataset"):
+# =========================
+# Standardize Columns
+# =========================
+def standardize_columns(df):
     """
-    Print basic information about a dataset
+    Convert column names to lowercase and replace spaces with underscores
     """
-    print(f"\n{name}")
-    print("Columns:", df.columns.tolist())
-    print(df.head(2))
-
-
-def load_multiple_datasets(file_list):
-    """
-    Load multiple datasets into a dictionary
-    """
-    data_dict = {}
-
-    for file in file_list:
-        try:
-            df = pd.read_csv(file)
-            data_dict[file] = df
-        except Exception as e:
-            print(f"Error reading {file}: {e}")
-
-    return data_dict
-
-
-def inspect_multiple_datasets(file_list):
-    """
-    Load and inspect multiple datasets
-    """
-    for file in file_list:
-        try:
-            df = pd.read_csv(file)
-            inspect_data(df, file)
-        except Exception as e:
-            print(f"\nERROR reading {file}: {e}")
-
-
-def clean_column_names(df):
-    """
-    Standardize column names
-    """
-    df.columns = df.columns.str.strip().str.lower().str.replace(" ", "_")
+    df.columns = (
+        df.columns
+        .str.strip()
+        .str.lower()
+        .str.replace(" ", "_")
+        .str.replace("-", "_")
+    )
     return df
+
+
+# =========================
+# Parse Dates
+# =========================
+def parse_dates(df):
+    """
+    Convert 'weekend' column to datetime if it exists
+    """
+    if "weekend" in df.columns:
+        df["weekend"] = pd.to_datetime(df["weekend"])
+    return df
+
+
+# =========================
+# Create Lag Features
+# =========================
+def create_lag_features(df, column, lags=[1, 2, 3]):
+    """
+    Create lagged features for time series modeling
+    """
+    for lag in lags:
+        df[f"{column}_lag{lag}"] = df[column].shift(lag)
+    return df
+
+
+# =========================
+# Basic Data Check
+# =========================
+def check_data(files):
+    """
+    Print columns and preview for all datasets
+    """
+    for f in files:
+        try:
+            df = pd.read_csv(f)
+            print(f"\n{f}")
+            print(df.columns.tolist())
+            print(df.head(2))
+        except Exception as e:
+            print(f"\nERROR reading {f}: {e}")
