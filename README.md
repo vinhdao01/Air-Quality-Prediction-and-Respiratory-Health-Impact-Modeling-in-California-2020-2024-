@@ -91,9 +91,9 @@ Air-Quality-Project/
 │   └── evaluation.py
 │
 ├── images/
-│   ├── eda_trends.png
-│   ├── correlation_heatmap.png
-│   └── model_performance.png
+│   ├── daily_mean_aqi.png
+│   ├── feature_importance.png
+│   └── forecast_model_comparison.png
 │
 ├── app/
 │   └── app.py
@@ -106,13 +106,13 @@ Air-Quality-Project/
 
 ## 📊 Visualizations
 
-### Air Quality Trends
+### Daily Mean AQI
 
-![Air Quality Trends](images/eda_trends.png)
+![Daily Mean AQI](images/daily_mean_aqi.png)
 
-### Model Performance
+### Forecast Model Comparison
 
-![Model Performance](images/model_performance.png)
+![Forecast Model Comparison](images/forecast_model_comparison.png)
 
 ---
 
