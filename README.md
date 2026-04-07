@@ -47,7 +47,6 @@ Air-Quality-Prediction-and-Respiratory-Health-Impact-Modeling-in-California-2020
 |   +-- aqi_model_metrics.csv         # AQI model evaluation metrics (generated)
 |   +-- health_model_metrics.csv      # Health model evaluation metrics (generated)
 |   +-- health_model_predictions.csv  # Health model predictions (generated)
-|   +-- data_dictionary.md            # Variable descriptions
 |
 +-- notebooks/
 |   +-- 01_eda.ipynb                  # Data loading, cleaning, EDA
@@ -180,12 +179,6 @@ Predicts county-level asthma hospitalization and ED visit rates from lagged AQI 
 
 **Random Forest Feature Importance**
 ![Random Forest Feature Importance](images/feature_importance.png)
-
----
-
-## Data Dictionary
-
-See [](data/data_dictionary.md) for descriptions of all variables and data sources.
 
 ---
 
