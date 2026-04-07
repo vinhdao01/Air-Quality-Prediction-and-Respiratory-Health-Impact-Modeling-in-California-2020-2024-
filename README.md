@@ -135,27 +135,45 @@ pip install -r requirements.txt
 ### Model 1 — AQI Forecast Model
 Forecasts future population-weighted statewide AQI using weekly time-series data.
 
-| Model | MAE | RMSE |
-|-------|-----|------|
-| ARIMA(1,1,1) | 17.74 | 21.69 |
-| SARIMA(1,1,1)(1,1,1,52) | 12.20 | 16.05 |
-| Random Forest (lag features) | 12.75 | 16.05 |
+| Model | MAE | RMSE | R² |
+|-------|-----|------|-----|
+| ARIMA(1,1,1) | 17.74 | 21.69 | -0.046 |
+| SARIMA(1,1,1)(1,1,1,52) | 12.20 | 16.05 | 0.428 |
+| Random Forest (lag features) | 12.75 | 16.05 | 0.445 |
 
 ### Model 2 — Lagged Respiratory Health Impact Model
 Predicts county-level asthma hospitalization and ED visit rates from lagged AQI exposure.
 
-| Model | MAE | RMSE | R² |
-|-------|-----|------|-----|
-| Linear Regression | 0.72 | 0.90 | 0.02 |
-| Random Forest | 0.78 | 1.01 | -0.22 |
-| Gradient Boosting | 0.84 | 1.09 | -0.42 |
+| Model | Hosp_MAE | Hosp_RMSE | Hosp_R² | ED_MAE | ED_RMSE | ED_R² |
+|-------|-----|------|-----|------|-----|-----|
+| Linear Regression | 0.6667 | 0.8327 | 0.1702 | 6.9787 | 7.7779 | 0.2444 |
+| Random Forest | 0.6781 | 0.8104 | 0.2142 | 7.6750 | 9.0469 | -0.0223 |
+| Gradient Boosting | 0.5896 | 0.6957 | 0.4209 | 7.1512 | 9.1319 | -0.0416 |
 
 ---
 
 ## Visualizations
 
+**AQI Distribution - California 2020-2024**
+![AQI Distribution - California 2020-2024](images/aqidistribution.png)
+
+**AQI Category Distribution**
+![AQI Category Distribution](images/aqicategorydistribution.png)
+
 **Daily Mean AQI (2020–2024)**
 ![Daily Mean AQI (2020–2024)](images/daily_mean_aqi.png)
+
+**AQI Distribution by Year**
+![AQI Distribution by Year](images/aqidistyear.png)
+
+**Daily AQI - Top 6 Most Polluted CA Counties**
+![Daily AQI - Top 6 Most Polluted CA Counties](images/top6.png)
+
+**Weekly Statewide AQI**
+![Weekly Statewide AQI](images/weeklystatewide.png)
+
+**Correlation Matrix - AQI & Respiratory Health Outcomes**
+![Correlation Matrix - AQI & Respiratory Health Outcomes](images/correlation.png)
 
 **AQI Forecast Model Comparison**
 ![AQI Forecast Model Comparison](images/forecast_model_comparison.png)
@@ -176,4 +194,3 @@ See [](data/data_dictionary.md) for descriptions of all variables and data sourc
 - Incorporate wildfire smoke and weather variables
 - Expand health outcome targets (COPD, cardiovascular)
 - Improve county-level spatial modeling
-- Deploy dashboard publicly via Streamlit Cloud
