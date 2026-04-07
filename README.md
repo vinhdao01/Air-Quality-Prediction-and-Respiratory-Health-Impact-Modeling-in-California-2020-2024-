@@ -66,6 +66,12 @@ Air-Quality-Prediction-and-Respiratory-Health-Impact-Modeling-in-California-2020
 |   +-- daily_mean_aqi.png
 |   +-- forecast_model_comparison.png
 |   +-- feature_importance.png
+|   +-- aqidistribution.png
+|   +-- aqicategorydistribution.png
+|   +-- aqidistyear.png
+|   +-- top6.png
+|   +-- weeklystatewide.png
+|   +-- correlation.png
 |
 +-- requirements.txt
 +-- README.md
@@ -103,8 +109,9 @@ Instead:
 notebooks/
 ```
 3. Click and run the notebooks in order:
- 01_eda.ipynb → Data cleaning and preprocessing (generates datasets)
- 02_modeling.ipynb → Forecasting and health impact models
+
+01_eda.ipynb → Data cleaning and preprocessing (generates datasets)
+02_modeling.ipynb → Forecasting and health impact models
 
 If prompted, select the default Python 3 kernel.
 
