@@ -103,8 +103,8 @@ Instead:
 notebooks/
 ```
 3. Click and run the notebooks in order:
-01_eda.ipynb → Data cleaning and preprocessing (generates datasets)
-02_modeling.ipynb → Forecasting and health impact models
+ 01_eda.ipynb → Data cleaning and preprocessing (generates datasets)
+ 02_modeling.ipynb → Forecasting and health impact models
 
 If prompted, select the default Python 3 kernel.
 
