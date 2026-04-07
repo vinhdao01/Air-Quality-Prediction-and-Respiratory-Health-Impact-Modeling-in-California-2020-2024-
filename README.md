@@ -93,20 +93,27 @@ Once the environment loads:
 pip install -r requirements.txt
 ```
 
-### 2. Run the notebooks (in order)
-```bash
-# Step 1 — EDA and data preprocessing (generates all files in data/)
-jupyter notebook notebooks/01_eda.ipynb
+### 2. Run the notebooks 
+Do not launch Jupyter from the terminal.
 
-# Step 2 — Modeling (requires outputs from step 1)
-jupyter notebook notebooks/02_modeling.ipynb
+Instead:
+1. Open the left sidebar (Explorer)
+2. Navigate to:
+```bash
+notebooks/
 ```
+3. Click and run the notebooks in order:
+01_eda.ipynb → Data cleaning and preprocessing (generates datasets)
+02_modeling.ipynb → Forecasting and health impact models
+
+If prompted, select the default Python 3 kernel.
 
 ### 3. Launch the interactive dashboard
+In the terminal, run:
 ```bash
-streamlit run app/app.py
+python -m streamlit run app/app.py
 ```
-Note: Be sure to upload the EPA AQS data files to the data/aqs/ directory within the Codespace before running the notebooks.
+Then open the forwarded port from the “Ports” tab in Codespaces.
 
 ### Option 2: Run Locally
 Prerequisites:
