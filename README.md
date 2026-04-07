@@ -76,28 +76,49 @@ Air-Quality-Prediction-and-Respiratory-Health-Impact-Modeling-in-California-2020
 
 ## How to Run
 
-### Prerequisites
-- Python 3.12+
-- EPA AQS data files in  (see Data Sources above)
+### Option 1 (Recommended): Run in GitHub Codespaces
 
-### 1. Clone the repository
-```bash
-git clone https://github.com/alligmckernan/Air-Quality-Prediction-and-Respiratory-Health-Impact-Modeling-in-California-2020-2024-.git
-cd Air-Quality-Prediction-and-Respiratory-Health-Impact-Modeling-in-California-2020-2024-
-```
+This project can be run entirely in the cloud using GitHub Codespaces—no local setup required.
 
-### 2. Install dependencies
+#### Steps:
+
+1. Open the repository on GitHub  
+2. Click the green **“Code”** button  
+3. Select the **“Codespaces”** tab  
+4. Click **“Create codespace on main”**
+
+Once the environment loads:
+
+### 1. Install dependencies
 ```bash
 pip install -r requirements.txt
-```
 
-### 3. Run the notebooks (in order)
-```bash
+### 2. Run the notebooks (in order)
 # Step 1 — EDA and data preprocessing (generates all files in data/)
 jupyter notebook notebooks/01_eda.ipynb
 
 # Step 2 — Modeling (requires outputs from step 1)
 jupyter notebook notebooks/02_modeling.ipynb
+
+### 3. Launch the interactive dashboard
+streamlit run app/app.py
+
+Note: Be sure to upload the EPA AQS data files to the data/aqs/ directory within the Codespace before running the notebooks.
+
+### Option 2: Run Locally
+Prerequisites
+Python 3.12+
+EPA AQS data files (see Data Sources above)
+
+### 1. Clone the repository
+git clone https://github.com/alligmckernan/Air-Quality-Prediction-and-Respiratory-Health-Impact-Modeling-in-California-2020-2024-.git
+cd Air-Quality-Prediction-and-Respiratory-Health-Impact-Modeling-in-California-2020-2024-
+
+### 2. Install dependencies
+pip install -r requirements.txt
+
+### 3. Run notebooks and dashboard
+(Same steps as above)
 ```
 
 ### 4. Launch the interactive dashboard
