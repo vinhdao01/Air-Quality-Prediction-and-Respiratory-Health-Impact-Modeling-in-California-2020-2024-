@@ -129,10 +129,7 @@ elif page == "Air Quality Explorer":
             year_options = ["All Years"] + sorted(weekly_state["Year"].dropna().unique().tolist())
             selected_year = st.selectbox("Select year", year_options, key="statewide_year")
 
-            if selected_year == "All Years":
-                df_plot = weekly_state.copy()
-            else:
-                df_plot = weekly_state[weekly_state["Year"] == selected_year].copy()
+            df_plot = weekly_state.copy() if selected_year == "All Years" else weekly_state[weekly_state["Year"] == selected_year].copy()
 
             chart = alt.Chart(df_plot).mark_line().encode(
                 x=alt.X("WeekEnd:T", title="Week Ending"),
@@ -236,14 +233,16 @@ elif page == "Air Quality vs Health":
     if joint is None:
         st.warning("joint_aqi_health_county.csv not found.")
     else:
-        year_options = sorted(joint["Year"].dropna().unique())
-        selected_year = st.selectbox("Select year", year_options, key="aqh_year")
-
-        outcome_label = st.selectbox(
-            "Select outcome",
-            ["Hospitalization Rate", "ED Visit Rate"],
-            key="aqh_outcome"
-        )
+        col1, col2 = st.columns(2)
+        with col1:
+            year_options = sorted(joint["Year"].dropna().unique())
+            selected_year = st.selectbox("Select year", year_options, key="aqh_year")
+        with col2:
+            outcome_label = st.selectbox(
+                "Select outcome",
+                ["Hospitalization Rate", "ED Visit Rate"],
+                key="aqh_outcome"
+            )
 
         if outcome_label == "Hospitalization Rate":
             outcome_col = "AGE-ADJUSTED HOSPITALIZATION RATE"
@@ -252,6 +251,9 @@ elif page == "Air Quality vs Health":
 
         df_plot = joint[joint["Year"] == selected_year].copy()
         df_plot = df_plot.dropna(subset=["Mean_AQI", outcome_col])
+
+        # Unique chart key forces Altair to fully re-render on any selection change
+        chart_key = f"aqh_{selected_year}_{outcome_label.replace(' ', '_')}"
 
         if df_plot.empty:
             st.warning("No data available for this selection.")
@@ -262,20 +264,21 @@ elif page == "Air Quality vs Health":
                 tooltip=["County_join", "Year", "Mean_AQI", outcome_col]
             )
 
-            # Only add trendline if enough data points
             if len(df_plot) >= 3:
                 trendline = alt.Chart(df_plot).transform_regression(
                     "Mean_AQI", outcome_col
                 ).mark_line(color="red", strokeDash=[4, 4])
-                chart = (points + trendline).properties(height=450)
+                chart = (points + trendline).properties(
+                    height=450,
+                    title=f"Air Quality vs {outcome_label} ({selected_year})"
+                )
             else:
-                chart = points.properties(height=450)
+                chart = points.properties(
+                    height=450,
+                    title=f"Air Quality vs {outcome_label} ({selected_year})"
+                )
 
-            st.altair_chart(
-                chart,
-                use_container_width=True,
-                key=f"aqh_chart_{selected_year}_{outcome_label}"
-            )
+            st.altair_chart(chart, use_container_width=True, key=chart_key)
 
             if len(df_plot) > 1:
                 corr = df_plot[["Mean_AQI", outcome_col]].corr().iloc[0, 1]
@@ -317,7 +320,6 @@ elif page == "Forecast & Model Results":
             var_name="Series",
             value_name="AirQuality"
         )
-
         plot_df = plot_df.dropna(subset=["AirQuality"])
 
         chart = alt.Chart(plot_df).mark_line().encode(
