@@ -61,7 +61,8 @@ page = st.sidebar.radio(
         "Air Quality vs Health",
         "Forecast & Model Results",
         "Key Takeaways"
-    ]
+    ],
+    key="main_nav"
 )
 
 # -----------------------------------
@@ -139,8 +140,7 @@ elif page == "Air Quality Explorer":
                 tooltip=["WeekEnd:T", "PopWeighted_AQI:Q"]
             ).properties(height=420)
 
-            st.altair_chart(chart, use_container_width=True)
-
+            st.altair_chart(chart, use_container_width=True, key=f"statewide_chart_{selected_year}")
             st.caption("Higher values generally indicate worse air quality.")
 
     with tab2:
@@ -148,7 +148,7 @@ elif page == "Air Quality Explorer":
             st.warning("annual_county_aqi.csv not found.")
         else:
             counties = sorted(annual_county["COUNTY"].dropna().unique())
-            county = st.selectbox("Select county", counties)
+            county = st.selectbox("Select county", counties, key="annual_county_select")
 
             df_plot = annual_county[annual_county["COUNTY"] == county].copy()
 
@@ -158,7 +158,7 @@ elif page == "Air Quality Explorer":
                 tooltip=["COUNTY", "Year", "Mean_AQI"]
             ).properties(height=420)
 
-            st.altair_chart(chart, use_container_width=True)
+            st.altair_chart(chart, use_container_width=True, key=f"annual_chart_{county}")
 
     with tab3:
         if weekly_county is None:
@@ -180,7 +180,7 @@ elif page == "Air Quality Explorer":
                 tooltip=["County", "WeekEnd:T", "Mean_AQI"]
             ).properties(height=420)
 
-            st.altair_chart(chart, use_container_width=True)
+            st.altair_chart(chart, use_container_width=True, key=f"weekly_county_chart_{county}_{selected_year}")
 
 # -----------------------------------
 # Health Outcomes Explorer
@@ -190,7 +190,8 @@ elif page == "Health Outcomes Explorer":
 
     outcome = st.selectbox(
         "Select health outcome",
-        ["Hospitalization Rate", "ED Visit Rate"]
+        ["Hospitalization Rate", "ED Visit Rate"],
+        key="health_outcome_select"
     )
 
     if outcome == "Hospitalization Rate":
@@ -206,22 +207,25 @@ elif page == "Health Outcomes Explorer":
         st.warning("Selected health dataset not found.")
     else:
         counties = sorted(df["COUNTY"].dropna().unique())
-        county = st.selectbox("Select county", counties, key="health_county")
+        county = st.selectbox("Select county", counties, key="health_county_select")
 
         df_plot = df[df["COUNTY"] == county].copy()
 
-        chart = alt.Chart(df_plot).mark_line(point=True).encode(
-            x=alt.X("YEAR:O", title="Year"),
-            y=alt.Y(f"{value_col}:Q", title=outcome),
-            tooltip=["COUNTY", "YEAR", value_col, count_col]
-        ).properties(height=420)
+        if df_plot.empty:
+            st.warning("No data available for this county.")
+        else:
+            chart = alt.Chart(df_plot).mark_line(point=True).encode(
+                x=alt.X("YEAR:O", title="Year"),
+                y=alt.Y(f"{value_col}:Q", title=outcome),
+                tooltip=["COUNTY", "YEAR", value_col, count_col]
+            ).properties(height=420)
 
-        st.altair_chart(chart, use_container_width=True)
+            st.altair_chart(chart, use_container_width=True, key=f"health_chart_{county}_{outcome}")
 
-        latest = df_plot.sort_values("YEAR").iloc[-1]
-        c1, c2 = st.columns(2)
-        c1.metric("Latest Year", int(latest["YEAR"]))
-        c2.metric("Latest Value", f"{latest[value_col]:.2f}")
+            latest = df_plot.sort_values("YEAR").iloc[-1]
+            c1, c2 = st.columns(2)
+            c1.metric("Latest Year", int(latest["YEAR"]))
+            c2.metric("Latest Value", f"{latest[value_col]:.2f}")
 
 # -----------------------------------
 # Air Quality vs Health
@@ -233,14 +237,12 @@ elif page == "Air Quality vs Health":
         st.warning("joint_aqi_health_county.csv not found.")
     else:
         year_options = sorted(joint["Year"].dropna().unique())
-        selected_year = st.selectbox("Select year", year_options)
+        selected_year = st.selectbox("Select year", year_options, key="aqh_year")
 
         outcome_label = st.selectbox(
             "Select outcome",
-            [
-                "Hospitalization Rate",
-                "ED Visit Rate"
-            ]
+            ["Hospitalization Rate", "ED Visit Rate"],
+            key="aqh_outcome"
         )
 
         if outcome_label == "Hospitalization Rate":
@@ -251,38 +253,49 @@ elif page == "Air Quality vs Health":
         df_plot = joint[joint["Year"] == selected_year].copy()
         df_plot = df_plot.dropna(subset=["Mean_AQI", outcome_col])
 
-        points = alt.Chart(df_plot).mark_circle(size=90).encode(
-            x=alt.X("Mean_AQI:Q", title="Average Air Quality Score"),
-            y=alt.Y(f"{outcome_col}:Q", title=outcome_label),
-            tooltip=["County_join", "Year", "Mean_AQI", outcome_col]
-        )
-
-        trendline = alt.Chart(df_plot).transform_regression(
-            "Mean_AQI", outcome_col
-        ).mark_line()
-
-        chart = (points + trendline).properties(height=450)
-
-        st.altair_chart(chart, use_container_width=True)
-
-        if len(df_plot) > 1:
-            corr = df_plot[["Mean_AQI", outcome_col]].corr().iloc[0, 1]
-            st.metric("Correlation", f"{corr:.3f}")
-
-            if corr >= 0.5:
-                interp = "a moderately strong positive relationship"
-            elif corr >= 0.2:
-                interp = "a weak-to-moderate positive relationship"
-            elif corr > 0:
-                interp = "a weak positive relationship"
-            elif corr == 0:
-                interp = "no clear relationship"
-            else:
-                interp = "a negative relationship"
-
-            st.caption(
-                f"For {selected_year}, this suggests {interp} between air quality and the selected health outcome across counties. This shows association, not causation."
+        if df_plot.empty:
+            st.warning("No data available for this selection.")
+        else:
+            points = alt.Chart(df_plot).mark_circle(size=90).encode(
+                x=alt.X("Mean_AQI:Q", title="Average Air Quality Score"),
+                y=alt.Y(f"{outcome_col}:Q", title=outcome_label),
+                tooltip=["County_join", "Year", "Mean_AQI", outcome_col]
             )
+
+            # Only add trendline if enough data points
+            if len(df_plot) >= 3:
+                trendline = alt.Chart(df_plot).transform_regression(
+                    "Mean_AQI", outcome_col
+                ).mark_line(color="red", strokeDash=[4, 4])
+                chart = (points + trendline).properties(height=450)
+            else:
+                chart = points.properties(height=450)
+
+            st.altair_chart(
+                chart,
+                use_container_width=True,
+                key=f"aqh_chart_{selected_year}_{outcome_label}"
+            )
+
+            if len(df_plot) > 1:
+                corr = df_plot[["Mean_AQI", outcome_col]].corr().iloc[0, 1]
+                st.metric("Correlation", f"{corr:.3f}")
+
+                if corr >= 0.5:
+                    interp = "a moderately strong positive relationship"
+                elif corr >= 0.2:
+                    interp = "a weak-to-moderate positive relationship"
+                elif corr > 0:
+                    interp = "a weak positive relationship"
+                elif corr == 0:
+                    interp = "no clear relationship"
+                else:
+                    interp = "a negative relationship"
+
+                st.caption(
+                    f"For {selected_year}, this suggests {interp} between air quality and "
+                    f"the selected health outcome across counties. This shows association, not causation."
+                )
 
 # -----------------------------------
 # Forecast & Model Results
@@ -314,7 +327,7 @@ elif page == "Forecast & Model Results":
             tooltip=["WeekEnd:T", "Series:N", "AirQuality:Q"]
         ).properties(height=450)
 
-        st.altair_chart(chart, use_container_width=True)
+        st.altair_chart(chart, use_container_width=True, key="forecast_chart")
 
     if health_metrics is not None:
         st.subheader("Health Model Metrics")
@@ -324,7 +337,8 @@ elif page == "Forecast & Model Results":
         st.subheader("Actual vs Predicted Health Outcome")
         model_choice = st.selectbox(
             "Select health prediction series",
-            ["Pred_LR", "Pred_RF", "Pred_GB"]
+            ["Pred_LR", "Pred_RF", "Pred_GB"],
+            key="health_pred_select"
         )
 
         df_plot = health_preds.copy()
@@ -335,7 +349,7 @@ elif page == "Forecast & Model Results":
             tooltip=["Mean_AQI", "AQI_lag1", "Actual", model_choice]
         ).properties(height=420)
 
-        st.altair_chart(chart, use_container_width=True)
+        st.altair_chart(chart, use_container_width=True, key=f"health_pred_chart_{model_choice}")
 
 # -----------------------------------
 # Key Takeaways
